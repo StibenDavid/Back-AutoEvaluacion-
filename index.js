@@ -67,6 +67,63 @@ app.get('/api/periodos', (req, res) => {
 		}
 	})
 })
+
+app.get('api/labores',(req,res)=>{
+	var connection = mysql.createConnection(credentials)
+	connection.query('SELECT * FROM labor', (err, rows) => {
+		if (err) {
+			res.status(500).send(err)
+		} else {
+			res.status(200).send(rows)
+		}
+	})
+})
+
+app.post('/api/labores/eliminar', (req, res) => {
+	const { id } = req.body
+	var connection = mysql.createConnection(credentials)
+	connection.query('DELETE FROM labor WHERE per_id = ?', id, (err, result) => {
+		if (err) {
+			res.status(500).send(err)
+		} else {
+			res.status(200).send({ "status": "success", "message": "Labor Eliminado" })
+		}
+	})
+	connection.end()
+})
+
+app.post('/api/labores/guardar', (req, res) => {
+    const { labor_nombre, labor_horas} = req.body;
+    console.log(req.body);
+    const params = [labor_nombre, labor_horas];
+    var connection = mysql.createConnection(credentials);
+    connection.query('INSERT INTO labor(labor_nombre, labor_horas) VALUES ?', [[params]], (err, result) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.status(200).send({ "status": "success", "message": "Labor creada" });
+        }
+        connection.end();
+    });
+});
+
+app.post('/api/labores/editar', (req, res) => {
+	const { labor_id,labor_nombre, labor_horas } = req.body
+	const params = [ labor_nombre, labor_horas]
+	var connection = mysql.createConnection(credentials)
+	connection.query('UPDATE labor SET labor_nombre=?, labor_horas WHERE labor_id = ?', params, (err, result) => {
+		if (err) {
+			res.status(500).send(err)
+		} else {
+			console.log("Modifican ",req.body);
+			console.log("Modifican ",result);
+			res.status(200).send({ "status": "success", "message": "Labor editado" })
+		}
+	})
+	connection.end()
+})
+	
+
 app.get('/api/autoevaluaciones', (req, res) => {
 	var connection = mysql.createConnection(credentials)
 	connection.query('SELECT * FROM evaluacion', (err, rows) => {
